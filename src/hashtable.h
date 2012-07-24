@@ -37,7 +37,7 @@ typedef struct hashtable {
 } hashtable_t;
 
 
-#define hashtable_key_to_iter(key_) \
+#define json_hashtable_key_to_iter(key_) \
     (&(container_of(key_, struct hashtable_pair, key)->list))
 
 /**
@@ -50,7 +50,7 @@ typedef struct hashtable {
  *
  * Returns 0 on success, -1 on error (out of memory).
  */
-int hashtable_init(hashtable_t *hashtable);
+int json_hashtable_init(hashtable_t *hashtable);
 
 /**
  * hashtable_close - Release all resources used by a hashtable object
@@ -59,7 +59,7 @@ int hashtable_init(hashtable_t *hashtable);
  *
  * Destroys a statically allocated hashtable object.
  */
-void hashtable_close(hashtable_t *hashtable);
+void json_hashtable_close(hashtable_t *hashtable);
 
 /**
  * hashtable_set - Add/modify value in hashtable
@@ -76,7 +76,7 @@ void hashtable_close(hashtable_t *hashtable);
  *
  * Returns 0 on success, -1 on failure (out of memory).
  */
-int hashtable_set(hashtable_t *hashtable,
+int json_hashtable_set(hashtable_t *hashtable,
                   const char *key, size_t serial,
                   json_t *value);
 
@@ -88,7 +88,7 @@ int hashtable_set(hashtable_t *hashtable,
  *
  * Returns value if it is found, or NULL otherwise.
  */
-void *hashtable_get(hashtable_t *hashtable, const char *key);
+void *json_hashtable_get(hashtable_t *hashtable, const char *key);
 
 /**
  * hashtable_del - Remove a value from the hashtable
@@ -98,7 +98,7 @@ void *hashtable_get(hashtable_t *hashtable, const char *key);
  *
  * Returns 0 on success, or -1 if the key was not found.
  */
-int hashtable_del(hashtable_t *hashtable, const char *key);
+int json_hashtable_del(hashtable_t *hashtable, const char *key);
 
 /**
  * hashtable_clear - Clear hashtable
@@ -107,7 +107,7 @@ int hashtable_del(hashtable_t *hashtable, const char *key);
  *
  * Removes all items from the hashtable.
  */
-void hashtable_clear(hashtable_t *hashtable);
+void json_hashtable_clear(hashtable_t *hashtable);
 
 /**
  * hashtable_iter - Iterate over hashtable
@@ -121,10 +121,10 @@ void hashtable_clear(hashtable_t *hashtable);
  * There's no need to free the iterator in any way. The iterator is
  * valid as long as the item that is referenced by the iterator is not
  * deleted. Other values may be added or deleted. In particular,
- * hashtable_iter_next() may be called on an iterator, and after that
+ * json_hashtable_iter_next() may be called on an iterator, and after that
  * the key/value pair pointed by the old iterator may be deleted.
  */
-void *hashtable_iter(hashtable_t *hashtable);
+void *json_hashtable_iter(hashtable_t *hashtable);
 
 /**
  * hashtable_iter_at - Return an iterator at a specific key
@@ -132,10 +132,10 @@ void *hashtable_iter(hashtable_t *hashtable);
  * @hashtable: The hashtable object
  * @key: The key that the iterator should point to
  *
- * Like hashtable_iter() but returns an iterator pointing to a
+ * Like json_hashtable_iter() but returns an iterator pointing to a
  * specific key.
  */
-void *hashtable_iter_at(hashtable_t *hashtable, const char *key);
+void *json_hashtable_iter_at(hashtable_t *hashtable, const char *key);
 
 /**
  * hashtable_iter_next - Advance an iterator
@@ -146,28 +146,28 @@ void *hashtable_iter_at(hashtable_t *hashtable, const char *key);
  * Returns a new iterator pointing to the next element in the
  * hashtable or NULL if the whole hastable has been iterated over.
  */
-void *hashtable_iter_next(hashtable_t *hashtable, void *iter);
+void *json_hashtable_iter_next(hashtable_t *hashtable, void *iter);
 
 /**
  * hashtable_iter_key - Retrieve the key pointed by an iterator
  *
  * @iter: The iterator
  */
-void *hashtable_iter_key(void *iter);
+void *json_hashtable_iter_key(void *iter);
 
 /**
  * hashtable_iter_serial - Retrieve the serial number pointed to by an iterator
  *
  * @iter: The iterator
  */
-size_t hashtable_iter_serial(void *iter);
+size_t json_hashtable_iter_serial(void *iter);
 
 /**
  * hashtable_iter_value - Retrieve the value pointed by an iterator
  *
  * @iter: The iterator
  */
-void *hashtable_iter_value(void *iter);
+void *json_hashtable_iter_value(void *iter);
 
 /**
  * hashtable_iter_set - Set the value pointed by an iterator
@@ -175,6 +175,6 @@ void *hashtable_iter_value(void *iter);
  * @iter: The iterator
  * @value: The value to set
  */
-void hashtable_iter_set(void *iter, json_t *value);
+void json_hashtable_iter_set(void *iter, json_t *value);
 
 #endif

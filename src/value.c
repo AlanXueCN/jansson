@@ -33,7 +33,7 @@ json_t *json_object(void)
         return NULL;
     json_init(&object->json, JSON_OBJECT);
 
-    if(hashtable_init(&object->hashtable))
+    if(json_hashtable_init(&object->hashtable))
     {
         jsonp_free(object);
         return NULL;
@@ -47,7 +47,7 @@ json_t *json_object(void)
 
 static void json_delete_object(json_object_t *object)
 {
-    hashtable_close(&object->hashtable);
+    json_hashtable_close(&object->hashtable);
     jsonp_free(object);
 }
 
@@ -70,7 +70,7 @@ json_t *json_object_get(const json_t *json, const char *key)
         return NULL;
 
     object = json_to_object(json);
-    return hashtable_get(&object->hashtable, key);
+    return json_hashtable_get(&object->hashtable, key);
 }
 
 int json_object_set_new_nocheck(json_t *json, const char *key, json_t *value)
@@ -87,7 +87,7 @@ int json_object_set_new_nocheck(json_t *json, const char *key, json_t *value)
     }
     object = json_to_object(json);
 
-    if(hashtable_set(&object->hashtable, key, object->serial++, value))
+    if(json_hashtable_set(&object->hashtable, key, object->serial++, value))
     {
         json_decref(value);
         return -1;
@@ -98,7 +98,7 @@ int json_object_set_new_nocheck(json_t *json, const char *key, json_t *value)
 
 int json_object_set_new(json_t *json, const char *key, json_t *value)
 {
-    if(!key || !utf8_check_string(key, -1))
+    if(!key || !json_utf8_check_string(key, -1))
     {
         json_decref(value);
         return -1;
@@ -115,7 +115,7 @@ int json_object_del(json_t *json, const char *key)
         return -1;
 
     object = json_to_object(json);
-    return hashtable_del(&object->hashtable, key);
+    return json_hashtable_del(&object->hashtable, key);
 }
 
 int json_object_clear(json_t *json)
@@ -127,7 +127,7 @@ int json_object_clear(json_t *json)
 
     object = json_to_object(json);
 
-    hashtable_clear(&object->hashtable);
+    json_hashtable_clear(&object->hashtable);
     object->serial = 0;
 
     return 0;
@@ -189,7 +189,7 @@ void *json_object_iter(json_t *json)
         return NULL;
 
     object = json_to_object(json);
-    return hashtable_iter(&object->hashtable);
+    return json_hashtable_iter(&object->hashtable);
 }
 
 void *json_object_iter_at(json_t *json, const char *key)
@@ -200,7 +200,7 @@ void *json_object_iter_at(json_t *json, const char *key)
         return NULL;
 
     object = json_to_object(json);
-    return hashtable_iter_at(&object->hashtable, key);
+    return json_hashtable_iter_at(&object->hashtable, key);
 }
 
 void *json_object_iter_next(json_t *json, void *iter)
@@ -211,7 +211,7 @@ void *json_object_iter_next(json_t *json, void *iter)
         return NULL;
 
     object = json_to_object(json);
-    return hashtable_iter_next(&object->hashtable, iter);
+    return json_hashtable_iter_next(&object->hashtable, iter);
 }
 
 const char *json_object_iter_key(void *iter)
@@ -219,7 +219,7 @@ const char *json_object_iter_key(void *iter)
     if(!iter)
         return NULL;
 
-    return hashtable_iter_key(iter);
+    return json_hashtable_iter_key(iter);
 }
 
 json_t *json_object_iter_value(void *iter)
@@ -227,7 +227,7 @@ json_t *json_object_iter_value(void *iter)
     if(!iter)
         return NULL;
 
-    return (json_t *)hashtable_iter_value(iter);
+    return (json_t *)json_hashtable_iter_value(iter);
 }
 
 int json_object_iter_set_new(json_t *json, void *iter, json_t *value)
@@ -235,7 +235,7 @@ int json_object_iter_set_new(json_t *json, void *iter, json_t *value)
     if(!json_is_object(json) || !iter || !value)
         return -1;
 
-    hashtable_iter_set(iter, value);
+    json_hashtable_iter_set(iter, value);
     return 0;
 }
 
@@ -244,7 +244,7 @@ void *json_object_key_to_iter(const char *key)
     if(!key)
         return NULL;
 
-    return hashtable_key_to_iter(key);
+    return json_hashtable_key_to_iter(key);
 }
 
 static int json_object_equal(json_t *object1, json_t *object2)
@@ -622,7 +622,7 @@ json_t *json_string_nocheck(const char *value)
 
 json_t *json_string(const char *value)
 {
-    if(!value || !utf8_check_string(value, -1))
+    if(!value || !json_utf8_check_string(value, -1))
         return NULL;
 
     return json_string_nocheck(value);
@@ -657,7 +657,7 @@ int json_string_set_nocheck(json_t *json, const char *value)
 
 int json_string_set(json_t *json, const char *value)
 {
-    if(!value || !utf8_check_string(value, -1))
+    if(!value || !json_utf8_check_string(value, -1))
         return -1;
 
     return json_string_set_nocheck(json, value);

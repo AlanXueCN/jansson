@@ -87,7 +87,7 @@ static JSON_INLINE size_t num_buckets(hashtable_t *hashtable)
 }
 
 
-static pair_t *hashtable_find_pair(hashtable_t *hashtable, bucket_t *bucket,
+static pair_t *json_hashtable_find_pair(hashtable_t *hashtable, bucket_t *bucket,
                                    const char *key, size_t hash)
 {
     list_t *list;
@@ -113,7 +113,7 @@ static pair_t *hashtable_find_pair(hashtable_t *hashtable, bucket_t *bucket,
 }
 
 /* returns 0 on success, -1 if key was not found */
-static int hashtable_do_del(hashtable_t *hashtable,
+static int json_hashtable_do_del(hashtable_t *hashtable,
                             const char *key, size_t hash)
 {
     pair_t *pair;
@@ -123,7 +123,7 @@ static int hashtable_do_del(hashtable_t *hashtable,
     index = hash % num_buckets(hashtable);
     bucket = &hashtable->buckets[index];
 
-    pair = hashtable_find_pair(hashtable, bucket, key, hash);
+    pair = json_hashtable_find_pair(hashtable, bucket, key, hash);
     if(!pair)
         return -1;
 
@@ -145,7 +145,7 @@ static int hashtable_do_del(hashtable_t *hashtable,
     return 0;
 }
 
-static void hashtable_do_clear(hashtable_t *hashtable)
+static void json_hashtable_do_clear(hashtable_t *hashtable)
 {
     list_t *list, *next;
     pair_t *pair;
@@ -159,7 +159,7 @@ static void hashtable_do_clear(hashtable_t *hashtable)
     }
 }
 
-static int hashtable_do_rehash(hashtable_t *hashtable)
+static int json_hashtable_do_rehash(hashtable_t *hashtable)
 {
     list_t *list, *next;
     pair_t *pair;
@@ -194,7 +194,7 @@ static int hashtable_do_rehash(hashtable_t *hashtable)
 }
 
 
-int hashtable_init(hashtable_t *hashtable)
+int json_hashtable_init(hashtable_t *hashtable)
 {
     size_t i;
 
@@ -215,13 +215,13 @@ int hashtable_init(hashtable_t *hashtable)
     return 0;
 }
 
-void hashtable_close(hashtable_t *hashtable)
+void json_hashtable_close(hashtable_t *hashtable)
 {
-    hashtable_do_clear(hashtable);
+    json_hashtable_do_clear(hashtable);
     jsonp_free(hashtable->buckets);
 }
 
-int hashtable_set(hashtable_t *hashtable,
+int json_hashtable_set(hashtable_t *hashtable,
                   const char *key, size_t serial,
                   json_t *value)
 {
@@ -231,13 +231,13 @@ int hashtable_set(hashtable_t *hashtable,
 
     /* rehash if the load ratio exceeds 1 */
     if(hashtable->size >= num_buckets(hashtable))
-        if(hashtable_do_rehash(hashtable))
+        if(json_hashtable_do_rehash(hashtable))
             return -1;
 
     hash = hash_str(key);
     index = hash % num_buckets(hashtable);
     bucket = &hashtable->buckets[index];
-    pair = hashtable_find_pair(hashtable, bucket, key, hash);
+    pair = json_hashtable_find_pair(hashtable, bucket, key, hash);
 
     if(pair)
     {
@@ -266,7 +266,7 @@ int hashtable_set(hashtable_t *hashtable,
     return 0;
 }
 
-void *hashtable_get(hashtable_t *hashtable, const char *key)
+void *json_hashtable_get(hashtable_t *hashtable, const char *key)
 {
     pair_t *pair;
     size_t hash;
@@ -275,24 +275,24 @@ void *hashtable_get(hashtable_t *hashtable, const char *key)
     hash = hash_str(key);
     bucket = &hashtable->buckets[hash % num_buckets(hashtable)];
 
-    pair = hashtable_find_pair(hashtable, bucket, key, hash);
+    pair = json_hashtable_find_pair(hashtable, bucket, key, hash);
     if(!pair)
         return NULL;
 
     return pair->value;
 }
 
-int hashtable_del(hashtable_t *hashtable, const char *key)
+int json_hashtable_del(hashtable_t *hashtable, const char *key)
 {
     size_t hash = hash_str(key);
-    return hashtable_do_del(hashtable, key, hash);
+    return json_hashtable_do_del(hashtable, key, hash);
 }
 
-void hashtable_clear(hashtable_t *hashtable)
+void json_hashtable_clear(hashtable_t *hashtable)
 {
     size_t i;
 
-    hashtable_do_clear(hashtable);
+    json_hashtable_do_clear(hashtable);
 
     for(i = 0; i < num_buckets(hashtable); i++)
     {
@@ -304,12 +304,12 @@ void hashtable_clear(hashtable_t *hashtable)
     hashtable->size = 0;
 }
 
-void *hashtable_iter(hashtable_t *hashtable)
+void *json_hashtable_iter(hashtable_t *hashtable)
 {
-    return hashtable_iter_next(hashtable, &hashtable->list);
+    return json_hashtable_iter_next(hashtable, &hashtable->list);
 }
 
-void *hashtable_iter_at(hashtable_t *hashtable, const char *key)
+void *json_hashtable_iter_at(hashtable_t *hashtable, const char *key)
 {
     pair_t *pair;
     size_t hash;
@@ -318,14 +318,14 @@ void *hashtable_iter_at(hashtable_t *hashtable, const char *key)
     hash = hash_str(key);
     bucket = &hashtable->buckets[hash % num_buckets(hashtable)];
 
-    pair = hashtable_find_pair(hashtable, bucket, key, hash);
+    pair = json_hashtable_find_pair(hashtable, bucket, key, hash);
     if(!pair)
         return NULL;
 
     return &pair->list;
 }
 
-void *hashtable_iter_next(hashtable_t *hashtable, void *iter)
+void *json_hashtable_iter_next(hashtable_t *hashtable, void *iter)
 {
     list_t *list = (list_t *)iter;
     if(list->next == &hashtable->list)
@@ -333,25 +333,25 @@ void *hashtable_iter_next(hashtable_t *hashtable, void *iter)
     return list->next;
 }
 
-void *hashtable_iter_key(void *iter)
+void *json_hashtable_iter_key(void *iter)
 {
     pair_t *pair = list_to_pair((list_t *)iter);
     return pair->key;
 }
 
-size_t hashtable_iter_serial(void *iter)
+size_t json_hashtable_iter_serial(void *iter)
 {
     pair_t *pair = list_to_pair((list_t *)iter);
     return pair->serial;
 }
 
-void *hashtable_iter_value(void *iter)
+void *json_hashtable_iter_value(void *iter)
 {
     pair_t *pair = list_to_pair((list_t *)iter);
     return pair->value;
 }
 
-void hashtable_iter_set(void *iter, json_t *value)
+void json_hashtable_iter_set(void *iter, json_t *value)
 {
     pair_t *pair = list_to_pair((list_t *)iter);
 

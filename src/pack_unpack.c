@@ -111,7 +111,7 @@ static json_t *pack_object(scanner_t *s, va_list *ap)
             goto error;
         }
 
-        if(!utf8_check_string(key, -1)) {
+        if(!json_utf8_check_string(key, -1)) {
             set_error(s, "<args>", "Invalid UTF-8 in object key");
             goto error;
         }
@@ -184,7 +184,7 @@ static json_t *pack(scanner_t *s, va_list *ap)
                 set_error(s, "<args>", "NULL string argument");
                 return NULL;
             }
-            if(!utf8_check_string(str, -1)) {
+            if(!json_utf8_check_string(str, -1)) {
                 set_error(s, "<args>", "Invalid UTF-8 string");
                 return NULL;
             }
@@ -233,7 +233,7 @@ static int unpack_object(scanner_t *s, json_t *root, va_list *ap)
     */
     hashtable_t key_set;
 
-    if(hashtable_init(&key_set)) {
+    if(json_hashtable_init(&key_set)) {
         set_error(s, "<internal>", "Out of memory");
         return -1;
     }
@@ -300,7 +300,7 @@ static int unpack_object(scanner_t *s, json_t *root, va_list *ap)
         if(unpack(s, value, ap))
             goto out;
 
-        hashtable_set(&key_set, key, 0, json_null());
+        json_hashtable_set(&key_set, key, 0, json_null());
         next_token(s);
     }
 
@@ -316,7 +316,7 @@ static int unpack_object(scanner_t *s, json_t *root, va_list *ap)
     ret = 0;
 
 out:
-    hashtable_close(&key_set);
+    json_hashtable_close(&key_set);
     return ret;
 }
 

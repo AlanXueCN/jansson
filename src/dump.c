@@ -26,7 +26,7 @@ struct object_key {
 
 static int dump_to_strbuffer(const char *buffer, size_t size, void *data)
 {
-    return strbuffer_append_bytes((strbuffer_t *)data, buffer, size);
+    return json_strbuffer_append_bytes((strbuffer_t *)data, buffer, size);
 }
 
 static int dump_to_file(const char *buffer, size_t size, void *data)
@@ -79,7 +79,7 @@ static int dump_string(const char *str, json_dump_callback_t dump, void *data, s
 
         while(*end)
         {
-            end = utf8_iterate(pos, &codepoint);
+            end = json_utf8_iterate(pos, &codepoint);
             if(!end)
                 return -1;
 
@@ -307,7 +307,7 @@ static int do_dump(const json_t *json, size_t flags, int depth,
                 i = 0;
                 while(iter)
                 {
-                    keys[i].serial = hashtable_iter_serial(iter);
+                    keys[i].serial = json_hashtable_iter_serial(iter);
                     keys[i].key = json_object_iter_key(iter);
                     iter = json_object_iter_next((json_t *)json, iter);
                     i++;
@@ -408,15 +408,15 @@ char *json_dumps(const json_t *json, size_t flags)
     strbuffer_t strbuff;
     char *result;
 
-    if(strbuffer_init(&strbuff))
+    if(json_strbuffer_init(&strbuff))
         return NULL;
 
     if(json_dump_callback(json, dump_to_strbuffer, (void *)&strbuff, flags))
         result = NULL;
     else
-        result = jsonp_strdup(strbuffer_value(&strbuff));
+        result = jsonp_strdup(json_strbuffer_value(&strbuff));
 
-    strbuffer_close(&strbuff);
+    json_strbuffer_close(&strbuff);
     return result;
 }
 
